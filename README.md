@@ -57,17 +57,19 @@ cd client
 
 Y usa npm install en las dos ubicaciones
 
-3. Configura el archivo .env dentro de la carpeta api este archivo debe contener
+3. Crear la carpeta "upload" en la carpeta client public
+
+4. Configura el archivo .env dentro de la carpeta api este archivo debe contener
 
 PASS_SEC = "123"
 JWT_KEY = "123"
 FRONTEND_URL = "http://localhost:5173"
 BACKEND_URL = "http://localhost:5000"
 
-4. Inicia el servidor backend con npm start
-5. Inicia el frontend con npm run dev
+5. Inicia el servidor backend con npm start
+6. Inicia el frontend con npm run dev
 
-4. Accede a la aplicación en tu navegador:
+7. Accede a la aplicación en tu navegador:
 Frontend: http://localhost:5173 (o el puerto configurado en React.js).
 Backend: http://localhost:5000 (o el puerto configurado en Node.js).
 
