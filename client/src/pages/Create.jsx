@@ -6,26 +6,20 @@ import "react-quill/dist/quill.snow.css";
 import { useLocation, useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/authContext";
 
-
 const Create = () => {
   const navigate = useNavigate();
-   const { currentUser } = useContext(AuthContext);
-
-  // NICE! BUT BETTER STILL, COULD HAVE PASSED A POST PROP FROM <SinglePost> instead of editID.
-  // Going to leave it regardless!!!
+  const { currentUser } = useContext(AuthContext);
 
   const editId = useLocation().search.split("=")[1];
+
   useEffect(() => {
     const fetchpostCont = async () => {
       try {
-        const res = await axios.get(
-          `http://localhost:5000/api/posts/${editId}`
-        );
+        const res = await axios.get(`http://localhost:5000/api/posts/${editId}`);
         setpostCont(res.data);
         setValue(res.data.cont);
         setTitle(res.data.title);
         setDesc(res.data.desc);
-        console.log(res.data);
       } catch (err) {
         console.log(err);
       }
@@ -38,110 +32,112 @@ const Create = () => {
   const [desc, setDesc] = useState("");
   const [imageURL, setImageURL] = useState("");
   const [File, setFile] = useState(null);
+  const [imageName, setImageName] = useState("");  // Estado para el nombre de la imagen
   const [cat, setCat] = useState("");
-
+  const [successMessage, setSuccessMessage] = useState("");
   const [postCont, setpostCont] = useState({});
 
   const upload = async () => {
     try {
       const formData = new FormData();
       formData.append("file", File);
-  
+
       const res = await axios.post("http://localhost:5000/api/upload", formData, {
         withCredentials: true,
       });
-  
-      console.log("URL de la imagen subida:", res.data.url); // Verifica en la consola
-      return res.data.url; // Asegúrate de retornar solo la URL
+
+      return res.data.url;
     } catch (err) {
       console.error("Error al subir la imagen:", err);
-      return ""; // Retorna un string vacío si hay un error
+      return "";
     }
   };
-  
-  
 
   const handleUpdate = async (e) => {
     e.preventDefault();
-    
+
     let imgURL = "";
     if (File) {
       imgURL = await upload(); // Esperar a que se resuelva la promesa
     }
-  
+
     try {
       const res = await axios.put(
         `http://localhost:5000/api/posts/${editId}`,
         {
           title,
           desc,
-          img: imgURL ? imgURL : imageURL, // Asegúrate de que imgURL tenga un valor válido
+          img: imgURL ? imgURL : imageURL,
           cat: cat,
           date: moment(Date.now()).format("YYYY-MM-DD HH:mm:ss"),
           cont: value,
         },
         { withCredentials: true }
       );
-      console.log(res.data);
       navigate(`/post/${editId}`);
     } catch (err) {
       console.log(err);
     }
   };
-  
 
   const handleCreate = async (e) => {
-  e.preventDefault();
+    e.preventDefault();
 
-  let imgURL = "";
-  if (File) {
-    imgURL = await upload(); // Sube la imagen y obtén la URL
-  }
+    let imgURL = "";
+    if (File) {
+      imgURL = await upload(); // Sube la imagen y obtén la URL
+    }
 
-  try {
-    const res = await axios.post(
-      `http://localhost:5000/api/posts`,
-      {
-        title,
-        desc,
-        img: imgURL || "", // Asegúrate de que img sea una cadena
-        cat: cat,
-        date: moment(Date.now()).format("YYYY-MM-DD HH:mm:ss"),
-        cont: value,
-        uid: currentUser.id,
-      },
-      { withCredentials: true }
-    );
+    try {
+      await axios.post(
+        `http://localhost:5000/api/posts`,
+        {
+          title,
+          desc,
+          img: imgURL || "",
+          cat,
+          date: moment(Date.now()).format("YYYY-MM-DD HH:mm:ss"),
+          cont: value,
+          uid: currentUser.id,
+        },
+        { withCredentials: true }
+      );
 
-    console.log("Respuesta del servidor al crear post:", res.data);
-    navigate('/');
-  } catch (err) {
-    console.error("Error al crear el post:", err);
-  }
-};
-  
+      setSuccessMessage("Publicación creada exitosamente!"); // Mensaje de éxito
+      setTimeout(() => {
+        setSuccessMessage(""); // Oculta el mensaje después de 3 segundos
+        navigate("/");
+      }, 3000);
+    } catch (err) {
+      console.error("Error al crear el post:", err);
+    }
+  };
+
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    setFile(file);
+    setImageName(file ? file.name : "");  // Actualiza el nombre de la imagen
+  };
 
   return (
     <div className="create">
       <div className="content">
-        <input
-          type="text"
-          name="title"
-          id=""
-          value={editId ? title : null}
-          onChange={(e) => setTitle(e.target.value)}
-          placeholder="Title"
-        />
-
-        <input
-          type="text"
-          name="desc"
-          id=""
-          value={editId ? desc : null}
-          onChange={(e) => setDesc(e.target.value)}
-          placeholder="Brief description of post.."
-        />
-
+      <input
+        type="text"
+        name="title"
+        id=""
+        value={title}  // No condicional, siempre muestra el valor de title
+        onChange={(e) => setTitle(e.target.value)}
+        placeholder="Title"
+      />
+      <input
+        type="text"
+        name="desc"
+        id=""
+        value={desc}  // No condicional, siempre muestra el valor de desc
+        onChange={(e) => setDesc(e.target.value)}
+        placeholder="Brief description of post.."
+      />
         <div className="editorContainer">
           <ReactQuill
             className="editor"
@@ -154,12 +150,9 @@ const Create = () => {
       <div className="menu">
         <div className="item">
           <h1>Publicar</h1>
-          <span>
-            <b>Status:</b> Borrador
-          </span>
-          <span>
-            <b> Visibilidad: </b> Publico
-          </span>
+          {successMessage && <p className="successMessage">{successMessage}</p>}
+          <span><b>Status:</b> Borrador</span>
+          <span><b> Visibilidad: </b> Publico</span>
           <div className="imgUpload">
             <input
               type="text"
@@ -171,14 +164,14 @@ const Create = () => {
               type="file"
               id="file"
               style={{ display: "none" }}
-              onChange={(e) => setFile(e.target.files[0])}
+              onChange={handleFileChange}  // Maneja el cambio del archivo
             />
             <label className="file" htmlFor="file">
               / O sube la imagen
             </label>
+            {imageName && <p>Imagen seleccionada: {imageName}</p>}  {/* Muestra el nombre de la imagen */}
           </div>
           <div className="buttons">
-            <button>Guardar como borrador </button>
             {editId ? (
               <button onClick={handleUpdate}>Editar</button>
             ) : (
@@ -191,7 +184,6 @@ const Create = () => {
           <div className="cat">
             <input
               type="radio"
-              
               name="cat"
               value="art"
               id="art"
@@ -202,10 +194,9 @@ const Create = () => {
           <div className="cat">
             <input
               type="radio"
-             
               name="cat"
               value="science"
-              id="Sscience"
+              id="science"
               onChange={(e) => setCat(e.target.value)}
             />
             <label htmlFor="science">Ciencia</label>
@@ -213,18 +204,16 @@ const Create = () => {
           <div className="cat">
             <input
               type="radio"
-              
               name="cat"
               value="technology"
               id="technology"
               onChange={(e) => setCat(e.target.value)}
             />
-            <label htmlFor="technology">Tecnología</label>
+            <label htmlFor="technology">Liderazgo</label>
           </div>
           <div className="cat">
             <input
               type="radio"
-             
               name="cat"
               value="movies"
               id="movies"
@@ -235,7 +224,6 @@ const Create = () => {
           <div className="cat">
             <input
               type="radio"
-             
               name="cat"
               value="lifestyle"
               id="lifestyle"
@@ -246,7 +234,6 @@ const Create = () => {
           <div className="cat">
             <input
               type="radio"
-              
               name="cat"
               value="politics"
               id="politics"

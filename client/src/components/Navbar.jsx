@@ -4,68 +4,68 @@ import { Link, useNavigate } from "react-router-dom";
 import { AuthContext } from '../context/authContext';
 
 const Navbar = () => {
-
-    const navigate = useNavigate()
+    const navigate = useNavigate();
     const { logout, currentUser } = useContext(AuthContext);
+
     const loggedOut = () => {
-      logout();
-      navigate("/");
-    }
-  return (
-    <>
-      <div className="navbar">
-        <div className="container">
-          <Link className='link' to="/">
-          <div className="logo">
-            <img src={logo} alt="logo" />
-          </div>
-          </Link>
-          <div className="links">
-            <Link to="/?cat=art" className="link">
-              <h6>ARTE</h6>
-            </Link>
-            <Link to="/?cat=science" className="link">
-              <h6>CIENCIA</h6>
-            </Link>
-            <Link to="/?cat=technology" className="link">
-              <h6>LIDERAZGO</h6>
-            </Link>
-            <Link to="/?cat=movies" className="link">
-              <h6>PELICULAS</h6>
-            </Link>
-            <Link to="/?cat=politics" className="link">
-              <h6>POLITICA</h6>
-            </Link>
-            <Link to="/?cat=lifestyle" className="link">
-              <h6>INNOVACIÓN</h6>
-            </Link>
+        logout();
+        navigate("/");
+    };
 
-            <span className="Home">
-              <Link className="link" to="/home">
-                Home
-              </Link>
-            </span>
+    return (
+        <div className="navbar">
+            <div className="container">
+                <Link className='link' to="/">
+                    <div className="logo">
+                        <img src={logo} alt="logo" />
+                    </div>
+                </Link>
+                <div className="links">
+                    <Link to="/?cat=art" className="link">
+                        <h6>ARTE</h6>
+                    </Link>
+                    <Link to="/?cat=science" className="link">
+                        <h6>CIENCIA</h6>
+                    </Link>
+                    <Link to="/?cat=technology" className="link">
+                        <h6>LIDERAZGO</h6>
+                    </Link>
+                    <Link to="/?cat=movies" className="link">
+                        <h6>PELICULAS</h6>
+                    </Link>
+                    <Link to="/?cat=politics" className="link">
+                        <h6>POLITICA</h6>
+                    </Link>
+                    <Link to="/?cat=lifestyle" className="link">
+                        <h6>INNOVACIÓN</h6>
+                    </Link>
 
-            {currentUser ? (
-              <>
-                <span>{ currentUser.uname}</span>
-                <span onClick={loggedOut}>Logout</span>
-              </>
-            ) : (
-              <Link className="link" to="/login">
-                Login
-              </Link>
-            )}
-            <span className="write">
-              <Link className="link" to="/create">
-                New
-              </Link>
-            </span>
-          </div>
+                    <span className="Home">
+                        <Link className="link" to="/home">
+                            Home
+                        </Link>
+                    </span>
+
+                    {currentUser ? (
+                        <>
+                            {/* Mostrar la primera letra en mayúscula */}
+                            <span className="username">{currentUser.username.charAt(0).toUpperCase() + currentUser.username.slice(1)}</span>
+                            <span onClick={loggedOut}>Logout</span>
+                        </>
+                    ) : (
+                        <Link className="link" to="/login">
+                            Login
+                        </Link>
+                    )}
+                    <span className="write">
+                        <Link className="link" to="/create">
+                            New
+                        </Link>
+                    </span>
+                </div>
+            </div>
         </div>
-      </div>
-    </>
-  );
-}
+    );
+};
 
-export default Navbar
+export default Navbar;

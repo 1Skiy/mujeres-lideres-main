@@ -8,51 +8,28 @@ import Menu from "../components/Menu";
 import { AuthContext } from "../context/authContext";
 
 const SinglePost = () => {
-
- 
-
   const { currentUser } = useContext(AuthContext);
   const location = useLocation();
-   const navigate = useNavigate();
+  const navigate = useNavigate();
   const id = location.pathname.split('/')[2];
 
+  const [postCont, setPostCont] = useState({});
+  const [error, setError] = useState(null);
 
-const [error, setError] = useState(null);
-
-useEffect(() => {
-  const fetchpostCont = async () => {
-    try {
-      const res = await axios.get(`http://localhost:5000/api/posts/${id}`);
-      setpostCont(res.data);
-    } catch (err) {
-      console.error('Error al obtener el post:', err);
-      setError('No se pudo cargar el post. Intenta nuevamente.');
-    }
-  };
-  fetchpostCont();
-}, [id]);
-
-
-
-  const [postCont, setpostCont] = useState({});
-
+  // Fetch post data
   useEffect(() => {
-    
-    const fetchpostCont = async () => {
+    const fetchPost = async () => {
       try {
         const res = await axios.get(`http://localhost:5000/api/posts/${id}`);
-        setpostCont(res.data);
-        console.log(res.data);
+        setPostCont(res.data);
       } catch (err) {
-        console.log(err);
+        setError('No se pudo cargar el post. Intenta nuevamente.');
       }
     };
-    fetchpostCont();
-    console.log(postCont.id)
+    fetchPost();
   }, [id]);
 
-  const handleDelete = async() => {
-    
+  const handleDelete = async () => {
     try {
       await axios.delete(`http://localhost:5000/api/posts/${id}`, {
         withCredentials: true,
@@ -61,29 +38,36 @@ useEffect(() => {
     } catch (err) {
       console.log(err);
     }
-  }
+  };
+
+  
+  const isOwner = currentUser && currentUser.username === postCont.username;
 
   return (
     <div className="single">
       <div className="content">
-        <img src={postCont.img} alt="" />
+        {postCont.img && <img src={postCont.img} alt="" />}
         <div className="user">
           {postCont.userImg && (
             <img src={postCont.userImg} alt="userimage" className="userimg" />
           )}
           <div className="info">
-            <div className="username">{postCont.uname}</div>
+            <div className="username">
+              Publicación de {postCont.username}
+            </div>
             {postCont.date && (
               <div>Posteado {moment(postCont.date).fromNow()}</div>
             )}
           </div>
-          {currentUser && currentUser.uname === postCont.uname && (
+
+          
+          {isOwner && (
             <div className="modify">
               <Link to={`/create/?edit=${id}`}>
-                <img src={edit} alt="" />
+                <img src={edit} alt="Editar" />
               </Link>
               <Link>
-                <img src={del} alt="" onClick={handleDelete} />
+                <img src={del} alt="Eliminar" onClick={handleDelete} />
               </Link>
             </div>
           )}
@@ -91,11 +75,10 @@ useEffect(() => {
 
         <h1 className="title">{postCont.title}</h1>
         <p className="main-content">
-            {postCont.cont && postCont.cont.replace(/<\/?[^>]+(>|$)/g, "")}
-          <br />
+          {postCont.cont && postCont.cont.replace(/<\/?[^>]+(>|$)/g, "")}
         </p>
       </div>
-      <Menu cat={ postCont.cat} />
+      <Menu cat={postCont.cat} />
     </div>
   );
 };

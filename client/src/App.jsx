@@ -1,4 +1,3 @@
-
 import React from 'react'
 import Register from './pages/Register';
 import Login from './pages/Login'
@@ -9,7 +8,7 @@ import { createBrowserRouter, RouterProvider, Outlet} from "react-router-dom";
 import Create from './pages/Create';
 import LandingP from './pages/Landing';
 import SinglePost from './pages/SinglePost';
-import './App.css'
+import './App.css';
 import './style.scss'
 
 const Layout = () => {
@@ -48,6 +47,7 @@ const router = createBrowserRouter([
       },
     ]
   },
+
   {
     path: "/login",
     element: <Login/>,
@@ -69,7 +69,5 @@ const App = () => {
     </>
   );
 }
-
-
 
 export default App

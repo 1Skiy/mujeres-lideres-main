@@ -141,7 +141,7 @@ const LandingP = () => {
             <p>Universidad St, Ciudad Ficticia</p>
           </div>
         </div>
-        <h2 className="contacto">Contáctanos</h2>
+        <h2 className="contacto"></h2>
         <div className="redes-sociales">
           <i className="fab fa-instagram"></i>
           <i className="fab fa-facebook"></i>
